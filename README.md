@@ -1,2 +1,3 @@
-# 2024_MRM_thermochron
-Data analysis and modeling code for study on the thermochronology of the Montreal River monocline in northern WI/MI
+# Montreal River Monocline Thermochronology
+
+Data analysis and modeling code for study on the thermochronology of the Montreal River monocline in northern Wisconsin.
