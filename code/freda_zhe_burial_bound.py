@@ -76,7 +76,7 @@ which shows how the two bounds trade off against each other.
 
 Usage:
     pip install pythermo
-    python freda_zhe_burial_bound.py
+    python code/freda_zhe_burial_bound.py
 
 Output:
     - printed tables of modeled present-day dates for each grain and T_hold
@@ -84,9 +84,15 @@ Output:
     - figures/brb_syn_freda_burial.pdf (BRb syn-depositional burial sweep)
 """
 
+from pathlib import Path
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pythermo as pyt
+
+# figures are written to the repository-root figures/ directory regardless of
+# the working directory this script is run from
+FIGURES_DIR = Path(__file__).resolve().parent.parent / "figures"
 
 # measured pre-depositional Freda grains: name, U ppm, Th ppm, radius um, observed date, 1s
 GRAINS = [
@@ -336,8 +342,8 @@ def main():
     ax_r.set_ylabel("pre-depositional He signal (Myr)\n"
                     "(date difference vs. no inherited He)")
     fig.tight_layout()
-    fig.savefig("figures/freda_zhe_burial_bound.pdf", bbox_inches="tight")
-    print("\nFigure saved to figures/freda_zhe_burial_bound.pdf")
+    fig.savefig(FIGURES_DIR / "freda_zhe_burial_bound.pdf", bbox_inches="tight")
+    print(f"\nFigure saved to {FIGURES_DIR / 'freda_zhe_burial_bound.pdf'}")
 
     # BRb syn-depositional burial sweep
     brb_grains = [g for g in GRAINS if g[0].startswith("BRb")]
@@ -408,8 +414,8 @@ def main():
     bx_r.set_ylabel("pre-depositional He signal (Myr)\n"
                     "(date difference vs. no inherited He)")
     fig2.tight_layout()
-    fig2.savefig("figures/brb_syn_freda_burial.pdf", bbox_inches="tight")
-    print("\nFigure saved to figures/brb_syn_freda_burial.pdf")
+    fig2.savefig(FIGURES_DIR / "brb_syn_freda_burial.pdf", bbox_inches="tight")
+    print(f"\nFigure saved to {FIGURES_DIR / 'brb_syn_freda_burial.pdf'}")
 
 
 if __name__ == "__main__":

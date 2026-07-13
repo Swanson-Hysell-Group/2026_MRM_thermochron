@@ -4,12 +4,26 @@ Data analysis and modeling code for study on the thermochronology of the Montrea
 
 Alemu, T. B., Guenthner, W. R., & Swanson-Hysell, N. L. (2025). Mesoproterozoic, Neoproterozoic, and Mesozoic erosion of the Montreal River monocline in the Laurentia midcontinent. *in prep for Geochemistry, Geophysics, Geosystems*.
 
-## Notebooks
+## Code
 
-The repository contains the notebooks:
+The [code](code/) folder contains the notebooks and scripts for the project (notebook paths are relative to the folder; the scripts write output to [figures](figures/) regardless of where they are run from):
 
-- [📓 MRM_UTh_He_data.ipynb](MRM_UTh_He_data.ipynb) This notebook imports the reduced apatite and zircon (U-Th)/He data developed for the project directly from the https://github.com/wrguenthner/HAL_data repository. Within the https://github.com/wrguenthner/HAL_data/tree/main/projects_2023/TA23_MRM_MCR subdirectory of that repository are the raw datafiles and associated processing notebooks. Plots of these data are developed in the notebook including the main data figure of the paper: 
+- [📓 MRM_UTh_He_data.ipynb](code/MRM_UTh_He_data.ipynb) This notebook imports the reduced apatite and zircon (U-Th)/He data developed for the project directly from the https://github.com/wrguenthner/HAL_data repository. Within the https://github.com/wrguenthner/HAL_data/tree/main/projects_2023/TA23_MRM_MCR subdirectory of that repository are the raw datafiles and associated processing notebooks. The imported data are exported to [data](data/) and plots of these data are developed in the notebook including the main data figure of the paper:
 
 ![Age vs. eU Plots](./figures/markdown_images/MRM_UTh_He_data_image.png)
 
-- [📓 MRM_forward_models.ipynb](MRM_forward_models.ipynb) This notebook implements forward model scenarios using the `pythermo` package that can be compared to the apatite and zircon (U-Th)/He data. The code in this notebook generates the forward model figures of the manuscript.
+- [📓 MRM_forward_models.ipynb](code/MRM_forward_models.ipynb) This notebook implements forward model scenarios using the `pythermo` package that can be compared to the apatite and zircon (U-Th)/He data. The code in this notebook generates the forward model figures of the manuscript.
+
+- [📓 MRM-Bayes-Resampling.ipynb](code/MRM-Bayes-Resampling.ipynb) This Julia notebook applies empirical (hierarchical) Bayes resampling to estimate single-grain date uncertainties that account for overdispersion, exporting `Bayes_resample-mrm.csv` for use in the inversion input.
+
+- [🐍 freda_zhe_burial_bound.py](code/freda_zhe_burial_bound.py) This script forward models (with `pythermo`) the survival of pre-depositional He in Freda Formation detrital zircon to bound peak Neoproterozoic burial temperatures, and the syn-depositional burial of sample BRb-1.2 to bound the syn-rift geothermal gradient (supplementary figures S2 and S3).
+
+- [🐍 clumped_reordering_bound.py](code/clumped_reordering_bound.py) This script forward models solid-state clumped isotope reordering in ca. 1049 Ma vein calcite to bound peak Neoproterozoic burial temperatures (supplementary figure S4). It depends on ClumpyCool, included as a clone of https://github.com/maxmansaxman/Clumpy_reordering_model_distribution within the code folder.
+
+## Thermochron.jl inversion
+
+The [inversion_files](inversion_files/) folder contains the input and output files for the Bayesian time-temperature inversions conducted with [Thermochron.jl](https://github.com/OpenThermochronology/Thermochron.jl): the inversion script `tTinversion_mrm.jl`, the input data file `mrm.csv`, and dated run folders that each hold a pinned Julia environment (`Project.toml`/`Manifest.toml`), a README describing the runs, and the output plots. The full posteriors (`.jld2`) are not archived, but every chain is exactly reproducible from its recorded random seed and pinned environment. Composite inversion figures for the manuscript are in [inversion](inversion/).
+
+## Data
+
+The [data](data/) folder contains the reduced single-grain apatite and zircon (U-Th)/He data tables and the [figures](figures/) folder contains the figures output by the notebooks and scripts.

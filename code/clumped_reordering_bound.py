@@ -44,7 +44,7 @@ directory (as Clumpy_reordering_model_distribution/) is found automatically;
 alternatively place ClumpyCool_func.py anywhere on the Python path.
 
 Usage:
-    python clumped_reordering_bound.py
+    python code/clumped_reordering_bound.py
 
 Output:
     - printed tables of modeled apparent temperature and crossing temperatures
@@ -63,6 +63,10 @@ try:
 except ImportError:  # fall back to a local clone of the ClumpyCool distribution
     sys.path.append(str(Path(__file__).parent / "Clumpy_reordering_model_distribution"))
     import ClumpyCool_func as cc
+
+# figures are written to the repository-root figures/ directory regardless of
+# the working directory this script is run from
+FIGURES_DIR = Path(__file__).resolve().parent.parent / "figures"
 
 MYR = 1e6
 
@@ -170,8 +174,8 @@ def main():
     fig.suptitle("Clumped-isotope reordering limit on Neoproterozoic burial "
                  "(AMF6 vein calcite; Passey & Henkes 2012 kinetics)", fontsize=12)
     fig.tight_layout()
-    fig.savefig("figures/clumped_reordering_bound.pdf", bbox_inches="tight")
-    print("\nFigure saved to figures/clumped_reordering_bound.pdf")
+    fig.savefig(FIGURES_DIR / "clumped_reordering_bound.pdf", bbox_inches="tight")
+    print(f"\nFigure saved to {FIGURES_DIR / 'clumped_reordering_bound.pdf'}")
 
 
 if __name__ == "__main__":
