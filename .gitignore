@@ -1,1 +1,23 @@
 figures/.DS_Store
+.DS_Store
+__pycache__/
+
+# The manuscript is developed here but not tracked in this repository.
+current_manuscript/
+
+# Thermochron.jl inversion posteriors (~800 MB each). These are not archived:
+# every chain is exactly reproducible from its recorded random seed and the
+# pinned Julia environment (Project.toml / Manifest.toml) in each run folder.
+*.jld2
+
+# Working notes. The public-facing documentation for
+# each set of inversion runs is the README.md in its run folder.
+context.md
+
+# MCMC diagnostic traces plot all 10^6 steps, making the vector PDFs ~15 MB
+# each. The committed versions are 150 dpi PNG rasterizations (~30 kB) with
+# identical content. The t-T path density maps, date-eU plots, and kinetic
+# parameter posteriors remain as PDFs.
+*_lldist.pdf
+*_ndist.pdf
+*_acceptance.pdf

@@ -18,8 +18,13 @@
 
     using Thermochron, Plots
     using LinearAlgebra
+    using Random
     # Diminishing returns with more than ~2 threads
     BLAS.get_num_threads() > 2 && BLAS.set_num_threads(2)
+
+    # When running as a batch job (e.g. `julia tTinversion_mrm.jl unconstrained`),
+    # use a non-interactive GR workstation so figures save without a display
+    isinteractive() || (ENV["GKSwstype"] = "100")
 
     # Make sure we're running in the directory where the script is located
     cd(@__DIR__)
@@ -40,8 +45,8 @@
     # name = "OL13"
     # ds = importdataset("ol13.csv", ',', importas=:Tuple)
 
-    # # MRM combined dataset (includes Archean zircons and all apatite samples)
-    name = "MRM_jacobsville"
+    # MRM combined dataset (includes Archean zircons and all apatite samples)
+    name = "MRM"
     ds = importdataset("mrm.csv", ',', importas=:Tuple)
 
 ## --- Prepare problem
@@ -109,16 +114,62 @@
         Tboundary = :reflecting, # Reflecting temperature boundary conditions
     )
 
-    # Default: No constraints are imposed
-    constraint = Constraint()
+    # Individual geological constraints
+    mcr_burial_age = Uniform(1050, 1100)    # [Ma] Midcontinent Rift burial
+    mcr_burial_T   = Uniform(250, 400)      # [°C] Rb-Sr biotite dates (Cannon, 1993) and rift strata thickness
+    jacobsville_age = Uniform(980, 1000)    # [Ma] Jacobsville Formation deposition
+    jacobsville_T   = Uniform(20, 50)       # [°C] Near-surface exposure
+    cambrian_age   = Uniform(485, 505)      # [Ma] Cambrian Sauk transgression
+    cambrian_T     = Uniform(20, 50)        # [°C] Near-surface exposure
 
-    # # Uncomment this section if you wish to impose an unconformity or other constraint
-    # # at any point in the record.
-     constraint = Constraint(
-         agedist = [ Normal(505,20), Normal(990,10), Normal(1075,25)],  # [Ma] Age distribution
-         Tdist =   [ Uniform(20,50), Uniform(20,50), Uniform(250,400)],  # [C] Temperature distribution
-     )
-     name *= "_constrained"
+    # ——— Constraint configuration ———
+    # Selected via the first command line argument, e.g.
+    #   julia tTinversion_mrm.jl unconstrained
+    #   julia tTinversion_mrm.jl no_jacobsville
+    #   julia tTinversion_mrm.jl all_constraints
+    # or by editing the interactive default below. Note that these use uniform
+    # (box) constraints, a deliberate change from the Normal age priors used in
+    # the runs Guenthner conducted in late March 2026 (see guenthner_runs_2026-03/).
+    config = isempty(ARGS) ? "unconstrained" : ARGS[1]
+
+    if config == "unconstrained"
+        # No geological constraints
+        constraint = Constraint()
+    elseif config == "no_jacobsville"
+        # MCR burial + Cambrian (no Jacobsville)
+        constraint = Constraint(
+            agedist = [cambrian_age, mcr_burial_age],
+            Tdist   = [cambrian_T,   mcr_burial_T],
+        )
+    elseif config == "all_constraints"
+        # MCR burial + Jacobsville + Cambrian
+        constraint = Constraint(
+            agedist = [cambrian_age, jacobsville_age, mcr_burial_age],
+            Tdist   = [cambrian_T,   jacobsville_T,   mcr_burial_T],
+        )
+    else
+        error("Unknown constraint configuration: $config")
+    end
+    name *= "_$config"
+
+    # Random seed for reproducibility of the Markov chain. Override with a
+    # second command line argument (e.g. `julia tTinversion_mrm.jl unconstrained 12345`)
+    # to test whether independent chains converge to the same t-T history;
+    # non-default seeds are noted in the output file names.
+    seed = length(ARGS) >= 2 ? parse(Int, ARGS[2]) : 20260710
+    length(ARGS) >= 2 && (name *= "_seed$seed")
+
+    # Output directory for this batch of runs, which also holds the
+    # Project.toml/Manifest.toml pinning the package versions used. Override with
+    # a third command line argument to write into a different batch folder.
+    outdir = length(ARGS) >= 3 ? ARGS[3] : "swansonhysell_runs_2026-07b"
+    mkpath(outdir)
+    name = joinpath(outdir, name)
+
+    @info """Run configuration: $config
+    Random seed: $seed
+    Thermochron.jl version: $(pkgversion(Thermochron))
+    Output file prefix: $name"""
 
 ## --- Process data into Chronometer objects
 
@@ -157,9 +208,14 @@
 
 ## --- Invert for maximum likelihood t-T path
 
-    # Run Markov Chain
-    # @time tT = MCMC(chrons, damodels, model, boundary, constraint, detail; liveplot=true)
-    @time tT, kinetics = MCMC_varkinetics(chrons, damodels, model, boundary, constraint, detail; liveplot=true)
+    # Seed the task-local RNG immediately before running the Markov chain so that
+    # the chain (including its random initial path) is reproducible for a given
+    # seed, Julia version, and Thermochron.jl version
+    Random.seed!(seed)
+
+    # Run Markov Chain (live plotting only when running interactively)
+    # @time tT = MCMC(chrons, damodels, model, boundary, constraint, detail; liveplot=isinteractive())
+    @time tT, kinetics = MCMC_varkinetics(chrons, damodels, model, boundary, constraint, detail; liveplot=isinteractive())
     @info """tT.tpointdist & tT.Tpointdist collected, size: $(size(tT.Tpointdist))
     Mean log-likelihood: $(nanmean(view(tT.lldist, model.burnin:model.nsteps)))
     Mean acceptance rate: $(nanmean(view(tT.acceptancedist, model.burnin:model.nsteps)))
@@ -477,13 +533,17 @@ end
     end
 
     if @isdefined kinetics
-        im = findall(x->isa(x, MDDiffusivity), damodels[:,1])
-        id = findall(x->isa(x, MDDiffusivity), kinetics.dmdist[:,1])
-        for i in eachindex(im,id)
-            r = last(first(chrons[im[i]].domains).redges)
-            hdm = plot(damodels[im[i]], kinetics.dmdist[id[i],:], r)
-            savefig(hdm, "$(name)_$(ds.grain_name[im[i]])_MDD_kinetics.pdf")
-            display(hdm)
+        try
+            im = findall(x->isa(x, MDDiffusivity), damodels[:,1])
+            id = findall(x->isa(x, MDDiffusivity), kinetics.dmdist[:,1])
+            for i in eachindex(im,id)
+                r = last(first(chrons[im[i]].domains).redges)
+                hdm = plot(damodels[im[i]], kinetics.dmdist[id[i],:], r)
+                savefig(hdm, "$(name)_$(ds.grain_name[im[i]])_MDD_kinetics.pdf")
+                display(hdm)
+            end
+        catch e
+            @warn "MDD kinetics plotting skipped" exception=e
         end
     end
 

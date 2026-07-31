@@ -18,5 +18,8 @@ Constraint priors in these runs used **Normal age distributions**:
 `Normal(505, 20)`, `Normal(990, 10)`, `Normal(1075, 25)` Ma, with Uniform
 temperature priors (20–50, 20–50, 250–400 °C).
 
-No RNG seed was set, so the runs are not exactly
-reproducible.
+These runs used **Thermochron.jl v0.15.xx** (per W. Guenthner, July 2026); no
+Project.toml or Manifest.toml was provided, so the exact patch version is not
+recorded. The later runs in this repository use v0.16.13, so results are not
+strictly comparable across the two sets. No RNG seed was set, so these runs are
+not exactly reproducible.

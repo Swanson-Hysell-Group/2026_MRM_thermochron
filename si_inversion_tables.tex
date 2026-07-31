@@ -1,0 +1,42 @@
+\makeatletter
+\gdef\tablenamefont{\large\bf\baselineskip=14pt\relax}
+\gdef\tabletextfont{\large\baselineskip=14pt\relax\rm}
+\makeatother
+
+\begin{table}
+\settablenum{S1}
+\caption{Configuration of the Bayesian time-temperature inversions. All inversions were run with Thermochron.jl v0.16.13 \cite{Keller2022a} under Julia v1.12.5 using the \texttt{MCMC\_varkinetics} routine, in which the damage-diffusivity parameters are resampled during the inversion rather than held fixed. The inversion script and a pinned Julia environment (Project.toml and Manifest.toml) that specifies the exact version of every dependency are archived in the project repository.}
+\centering
+\begin{tabular}{l l}
+\hline
+Parameter & Value \\
+\hline
+\multicolumn{2}{l}{\textit{Time-temperature discretization}} \\
+Model start time & 2704 Ma (oldest crystallization age) \\
+Model timestep & 8 Ma (linear; 338 steps) \\
+Initial temperature & 400 \textdegree C (may vary to 300 \textdegree C) \\
+Present-day temperature & 0 \textdegree C (may vary to 20 \textdegree C) \\
+Maximum $\Delta$T per timestep & 20 \textdegree C \\
+Radius step size & 1 $\mu$m \\
+\multicolumn{2}{l}{\textit{Transdimensional path parameterization}} \\
+Allowed number of t-T nodes & 15 to 50 \\
+Detail interval & $\geq$8 nodes required between 0 and 1000 Ma \\
+Time boundary condition & Reflecting \\
+Temperature boundary condition & Reflecting \\
+\multicolumn{2}{l}{\textit{Markov chain}} \\
+Total steps & 1,000,000 \\
+Burn-in steps & 500,000 \\
+Simulated annealing & $T_0$ = 5, applied during burn-in \\
+Dynamic proposal tuning & Enabled \\
+\multicolumn{2}{l}{\textit{Kinetic models (resampled during inversion)}} \\
+Apatite He diffusivity & RDAAM \cite{Flowers2009b} \\
+Zircon He diffusivity & ZRDAAM \cite{Guenthner2013a} \\
+\multicolumn{2}{l}{\textit{Date uncertainty}} \\
+Initial model uncertainty & 25 Ma \\
+Empirical uncertainty (apatite) & $\sigma_{eU}$ = 10, $\sigma_{offset}$ = 10 \\
+Empirical uncertainty (zircon) & $\sigma_{eU}$ = 100, $\sigma_{offset}$ = 10 \\
+Resampling during inversion & Disabled (fixed after initial estimation) \\
+\hline
+\end{tabular}
+\label{tab:si_inversion_setup}
+\end{table}
