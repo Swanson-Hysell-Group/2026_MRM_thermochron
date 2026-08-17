@@ -19,7 +19,7 @@ code/MRM_forward_models.ipynb:
   (analysis names ``TAI_LRA_67_z*``) is LRa-67.0.
 * Samples are assigned to the groups defined in the notebooks: Archean basement,
   Midcontinent Rift, and Freda Formation detrital zircon.
-* Grains that the notebooks filter out as spurious (TAI_MRM20_z3 and
+* Grains that the notebooks filter out as spurious (TA_MRM20_z3 and
   TAI_MRM34_z2) are retained in the table but flagged as excluded, with the
   reason given, so that the reported dataset is complete.
 * Analyses of samples belonging to other projects that share the same
@@ -57,6 +57,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import string
 
 REPO = Path(__file__).resolve().parent.parent
 DATA = REPO / "data"
@@ -94,8 +95,8 @@ APATITE_GROUPS = [
 
 # grains filtered out in the notebooks, with the stated reason
 EXCLUDED = {
-    "TAI_MRM20_z3": "excluded: anomalous U--Th determination",
-    "TAI_MRM34_z2": "excluded: date exceeds crystallization age",
+    "TA_MRM20_z3": "excluded: anomalous U--Th determination",
+    #"TAI_MRM34_z2": "excluded: date exceeds crystallization age",
 }
 
 # groups whose grains are expected in the Thermochron.jl inversion input, so
@@ -145,6 +146,33 @@ def parse_analysis_name(name):
     sample = "_".join(tokens[:-1])
     return sample, grain
 
+def undupe_grain_names(df, sample_col="sample", grain_col="grain"):
+    """Give grains unique names when the same sample/grain combo shows up
+    more than once (e.g. from TAI_ and TA_ prefixed duplicates).
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing the sample and grain
+            columns produced by "parse_analysis_name".
+        sample_col (str): Name of the column holding sample codes.
+            Defaults to "sample".
+        grain_col (str): Name of the column holding grain names. Defaults
+            to "grain".
+
+    Returns:
+        pandas.DataFrame: The same DataFrame with "grain_col" updated so
+        that repeated sample/grain combinations get a lower-case letter
+        suffix (first occurrence unchanged, then 'a', 'b', 'c', ...).
+    """
+    combo = df[sample_col] + "_" + df[grain_col]
+
+    # 0 = first occurrence, 1 = second, 2 = third, ...
+    occurrence = combo.groupby(combo).cumcount()
+
+    # 0 -> '', 1 -> 'a', 2 -> 'b', ...
+    suffix = occurrence.map(lambda n: "" if n == 0 else string.ascii_lowercase[n - 1])
+
+    df[grain_col] = df[grain_col] + suffix
+    return df
 
 def report_number(url):
     """Return the HAL report file number that an analysis was taken from."""
@@ -268,6 +296,7 @@ def prepare(csv_path, groups, inversion_names):
     parsed = df["Unnamed: 0"].apply(parse_analysis_name)
     df["sample_code"] = [p[0] for p in parsed]
     df["grain"] = [p[1] for p in parsed]
+    df = undupe_grain_names(df, sample_col="sample_code", grain_col="grain")
     df["sample"] = df["sample_code"].map(lambda s: SAMPLE_DISPLAY.get(s, s))
     df["report"] = df["source_url"].apply(report_number) if "source_url" in df else None
 
