@@ -96,7 +96,9 @@ APATITE_GROUPS = [
 # grains filtered out in the notebooks, with the stated reason
 EXCLUDED = {
     "TA_MRM20_z3": "excluded: anomalous U--Th determination",
-    #"TAI_MRM34_z2": "excluded: date exceeds crystallization age",
+    "TAI_MRM34_z21": "excluded: date exceeds crystallization age",
+    "TAI_MRM34_z22": "excluded: date exceeds crystallization age",
+    "TAI_MRM34_z23": "excluded: date exceeds crystallization age",
 }
 
 # groups whose grains are expected in the Thermochron.jl inversion input, so
@@ -164,14 +166,15 @@ def undupe_grain_names(df, sample_col="sample", grain_col="grain"):
         suffix (first occurrence unchanged, then 'a', 'b', 'c', ...).
     """
     combo = df[sample_col] + "_" + df[grain_col]
+    is_dup = combo.duplicated(keep="first")
 
-    # 0 = first occurrence, 1 = second, 2 = third, ...
-    occurrence = combo.groupby(combo).cumcount()
+    suffix = pd.Series("1", index=df.index)
+    # some hardwiring here for sample MRM34, which has sample numbers in the teens already
+    suffix[df[sample_col] == "MRM34"] = "2"
 
-    # 0 -> '', 1 -> 'a', 2 -> 'b', ...
-    suffix = occurrence.map(lambda n: "" if n == 0 else string.ascii_lowercase[n - 1])
-
-    df[grain_col] = df[grain_col] + suffix
+    # split e.g. "z1" into letters "z" and number "1"
+    parts = df.loc[is_dup, grain_col].str.extract(r"^([^\d]*)(\d+)$")
+    df.loc[is_dup, grain_col] = parts[0] + suffix[is_dup] + parts[1]
     return df
 
 def report_number(url):
