@@ -21,10 +21,14 @@ regenerated without the (unarchived) ``.jld2`` posteriors.
 
 Figures written to ``figures/``:
 
-* ``inversion_tT.png`` -- main-text figure: the three constraint
-  configurations at the reference seed (20260710), one row.
-* ``inversion_tT_vertical.png`` -- the same three panels stacked, for
-  a single-column layout.
+* ``inversion_tT_1500Ma.png`` -- main-text figure: the three constraint
+  configurations at the reference seed (20260710), one row, shown from
+  1500 Ma to the present where the data have resolving power.
+* ``inversion_tT_1500Ma_vertical.png`` -- the same three panels stacked,
+  for a single-column layout.
+* ``inversion_tT.png`` and ``inversion_tT_vertical.png`` -- the same panels
+  over the full model span (2704 Ma to the present), for the supporting
+  information.
 * ``inversion_seed_comparison.png`` -- supporting information: the three
   configurations (rows) at the three seeds (columns).
 * ``inversion_grain_sensitivity.png`` -- supporting information: the rift
@@ -141,7 +145,7 @@ def load_density(prefix_path):
 
 
 def draw_panel(ax, density, meta, boxes, title=None, label=None,
-               xlabel=True, ylabel=True, title_pad=None):
+               xlabel=True, ylabel=True, title_pad=None, tmax=None):
     """Draw one posterior path-density map on an axis.
 
     Args:
@@ -153,6 +157,7 @@ def draw_panel(ax, density, meta, boxes, title=None, label=None,
         label: Optional bold panel letter placed above the axis.
         xlabel, ylabel: Whether to label the axes.
         title_pad: Title offset in points (default clears the panel label).
+        tmax: Oldest time (Ma) to show; default is the full model span.
     """
     t0, t1 = meta["time_Ma"]
     T0, T1 = meta["temperature_C"]
@@ -160,12 +165,14 @@ def draw_panel(ax, density, meta, boxes, title=None, label=None,
               origin="upper", extent=(t0, t1, T1, T0),
               interpolation="nearest")
     for name in boxes:
-        tmin, tmax, Tmin, Tmax = BOXES[name]
-        ax.add_patch(Rectangle((tmin, Tmin), tmax - tmin, Tmax - Tmin,
+        box_t0, box_t1, box_T0, box_T1 = BOXES[name]
+        ax.add_patch(Rectangle((box_t0, box_T0), box_t1 - box_t0, box_T1 - box_T0,
                                fill=False, edgecolor="black", linewidth=1.2))
-    ax.set_xlim(t1, t0)
+    if tmax is None:
+        tmax = t1
+    ax.set_xlim(tmax, t0)
     ax.set_ylim(T1, T0)
-    ax.set_xticks(np.arange(0, t1 + 1, 500))
+    ax.set_xticks(np.arange(0, tmax + 1, 500 if tmax > 1500 else 200))
     ax.set_yticks(np.arange(T0, T1 + 1, 50))
     ax.minorticks_on()
     ax.tick_params(direction="out", which="both", top=True, right=True,
@@ -199,8 +206,14 @@ def stats_line(meta):
             f"nodes {meta['mean_npoints']:.1f}")
 
 
-def main_text_figure(seed=SEEDS[0], vertical=False):
-    """Three constraint configurations at one seed (Figure: inversion_tT)."""
+def main_text_figure(seed=SEEDS[0], vertical=False, tmax=None):
+    """Three constraint configurations at one seed (Figure: inversion_tT).
+
+    Args:
+        seed: Random seed of the chains to show.
+        vertical: Stack the panels in one column instead of one row.
+        tmax: Oldest time (Ma) to show; None for the full model span.
+    """
     if vertical:
         fig, axes = plt.subplots(3, 1, figsize=(5.4, 10.8))
         fig.subplots_adjust(hspace=0.22)
@@ -211,10 +224,11 @@ def main_text_figure(seed=SEEDS[0], vertical=False):
         draw_panel(ax, density, meta, CONFIG_BOXES[config],
                    label=f"({letter}) {CONFIG_TITLES[config]}",
                    xlabel=(not vertical or ax is axes[-1]),
-                   ylabel=(vertical or ax is axes[0]))
+                   ylabel=(vertical or ax is axes[0]), tmax=tmax)
         print(f"  {config} seed {seed}: {stats_line(meta)}")
     add_colorbar(fig, list(axes))
-    out = FIGURES / ("inversion_tT_vertical.png" if vertical else "inversion_tT.png")
+    name = "inversion_tT" + (f"_{tmax:.0f}Ma" if tmax else "") + ("_vertical" if vertical else "")
+    out = FIGURES / f"{name}.png"
     fig.savefig(out, dpi=300, bbox_inches="tight")
     plt.close(fig)
     print(f"wrote {out.relative_to(REPO)}")
@@ -263,7 +277,10 @@ def grain_sensitivity_figure(seed=SEEDS[0]):
 
 if __name__ == "__main__":
     FIGURES.mkdir(exist_ok=True)
-    print("main-text figure")
+    print("main-text figure (1500 Ma to present)")
+    main_text_figure(tmax=1500)
+    main_text_figure(vertical=True, tmax=1500)
+    print("full-span three-panel figure")
     main_text_figure()
     main_text_figure(vertical=True)
     print("seed comparison figure")
