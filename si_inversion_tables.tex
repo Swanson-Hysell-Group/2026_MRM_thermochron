@@ -9,8 +9,15 @@
 
 \begin{table}
 \settablenum{S2}
+% The AGU SI class in draft mode sets \large with double row spacing inside every
+% table (via \tabletextsize) and a large caption font (\tabletextfont); override
+% both for this table only, and scale the tabular to the text width, so that it
+% fits on one page.
+\def\tabletextsize{\normalfont\footnotesize\def\arraystretch{1.05}}
+\def\tabletextfont{\normalfont\small\baselineskip=12pt}
 \caption{Configuration of the Bayesian time-temperature inversions. All inversions were run with Thermochron.jl v0.16.13 \cite{Keller2022a} under Julia v1.12.5 using the \texttt{MCMC\_varkinetics} routine, in which the damage-diffusivity parameters are resampled during the inversion rather than held fixed; the single-grain date uncertainties, by contrast, are estimated once before the inversion and then held fixed. The inversion script, the formatted input file, a pinned Julia environment (Project.toml and Manifest.toml) that specifies the exact version of every dependency, and the run logs of every chain are archived in the project repository.}
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{l l}
 \hline
 Parameter & Value \\
@@ -31,8 +38,7 @@ Radius step size & 1 $\mu$m \\
 \multicolumn{2}{l}{\textit{Transdimensional path parameterization}} \\
 Allowed number of t-T nodes & 15 to 50 \\
 Detail interval & $\geq$8 nodes required between 0 and 1000 Ma \\
-Time boundary condition & Reflecting \\
-Temperature boundary condition & Reflecting \\
+Time and temperature boundary conditions & Reflecting \\
 \multicolumn{2}{l}{\textit{Geologic constraints (uniform boxes)}} \\
 Midcontinent Rift burial & 250 to 400 \textdegree C at 1050 to 1100 Ma \\
 Jacobsville deposition & 20 to 50 \textdegree C at 980 to 1000 Ma \\
@@ -60,6 +66,6 @@ Resulting model uncertainty (zircon) & 47 to 269 Ma (1$\sigma$; 75 to 135 Ma for
 Resulting model uncertainty (apatite) & 25 to 81 Ma (1$\sigma$) \\
 Uncertainty resampling during inversion & Disabled (fixed after initial estimation) \\
 \hline
-\end{tabular}
+\end{tabular}}
 \label{tab:si_inversion_setup}
 \end{table}
