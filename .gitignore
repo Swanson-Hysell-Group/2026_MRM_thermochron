@@ -21,3 +21,8 @@ context.md
 *_lldist.pdf
 *_ndist.pdf
 *_acceptance.pdf
+
+# Posterior path-density arrays exported from the .jld2 posteriors by
+# inversion_files/export_tT_density.jl. The archived form is the lossless
+# 8-bit PNG (*_tT_density.png) written by code/make_inversion_figures.py.
+*_tT_density.npy

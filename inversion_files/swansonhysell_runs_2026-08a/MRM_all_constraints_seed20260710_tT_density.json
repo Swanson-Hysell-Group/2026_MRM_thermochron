@@ -1,0 +1,7 @@
+{"source": "MRM_all_constraints_seed20260710.jld2", "shape": [1200, 1800],
+ "time_Ma": [0.0, 2704.0], "temperature_C": [0.0, 400.0],
+ "normalisation": "98.5th percentile of the path-density image, clipped to [0, 1] and scaled to 0-255",
+ "post_burnin_steps": 1000000, "burnin": 500000,
+ "mean_loglikelihood": -448.9277040640107,
+ "mean_acceptance": 0.3050313899372201,
+ "mean_npoints": 20.269205461589078}

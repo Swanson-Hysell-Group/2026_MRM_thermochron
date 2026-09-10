@@ -1,5 +1,15 @@
 # Inversion runs, July 2026 — batch b (seed 12345)
 
+> **Superseded.** These runs used a version of `../mrm.csv` in which the
+> `raw He age [Ma]` column held alpha-ejection-corrected dates rather than raw
+> dates. Because Thermochron.jl applies its own alpha-ejection correction
+> internally, the input dates were too old by a grain-size-dependent factor
+> (median 1.35 for the zircons, 1.53 for the apatites). The error was found in
+> August 2026 and is described in `../swansonhysell_runs_2026-08a/README.md`,
+> which supersedes this batch. The t-T histories and the convergence behaviour
+> discussed below should not be interpreted; the seed-dependence documented
+> here does not persist once the input data are corrected.
+
 Thermochron.jl time-temperature inversions of the combined zircon and apatite
 (U-Th)/He dataset from crystalline basement of the Montreal River monocline
 (`../mrm.csv`: 54 ZHe and 13 AHe analyses, 67 chronometers total). Runs

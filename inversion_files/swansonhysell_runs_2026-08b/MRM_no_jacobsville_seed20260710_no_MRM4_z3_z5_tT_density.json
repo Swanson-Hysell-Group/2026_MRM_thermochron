@@ -1,0 +1,7 @@
+{"source": "MRM_no_jacobsville_seed20260710_no_MRM4_z3_z5.jld2", "shape": [1200, 1800],
+ "time_Ma": [0.0, 2704.0], "temperature_C": [0.0, 400.0],
+ "normalisation": "98.5th percentile of the path-density image, clipped to [0, 1] and scaled to 0-255",
+ "post_burnin_steps": 1000000, "burnin": 500000,
+ "mean_loglikelihood": -423.0699938842227,
+ "mean_acceptance": 0.30298339403321195,
+ "mean_npoints": 20.10253179493641}

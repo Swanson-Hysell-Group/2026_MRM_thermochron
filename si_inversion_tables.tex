@@ -1,19 +1,29 @@
+% Configuration table for the Thermochron.jl inversions, for the supporting
+% information (si_materials.tex on Overleaf). Values reflect the August 2026
+% runs in inversion_files/swansonhysell_runs_2026-08a/ (corrected input data)
+% and the grain-exclusion sensitivity run in swansonhysell_runs_2026-08b/.
 \makeatletter
 \gdef\tablenamefont{\large\bf\baselineskip=14pt\relax}
 \gdef\tabletextfont{\large\baselineskip=14pt\relax\rm}
 \makeatother
 
 \begin{table}
-\settablenum{S1}
-\caption{Configuration of the Bayesian time-temperature inversions. All inversions were run with Thermochron.jl v0.16.13 \cite{Keller2022a} under Julia v1.12.5 using the \texttt{MCMC\_varkinetics} routine, in which the damage-diffusivity parameters are resampled during the inversion rather than held fixed. The inversion script and a pinned Julia environment (Project.toml and Manifest.toml) that specifies the exact version of every dependency are archived in the project repository.}
+\settablenum{S2}
+\caption{Configuration of the Bayesian time-temperature inversions. All inversions were run with Thermochron.jl v0.16.13 \cite{Keller2022a} under Julia v1.12.5 using the \texttt{MCMC\_varkinetics} routine, in which the damage-diffusivity parameters are resampled during the inversion rather than held fixed; the single-grain date uncertainties, by contrast, are estimated once before the inversion and then held fixed. The inversion script, the formatted input file, a pinned Julia environment (Project.toml and Manifest.toml) that specifies the exact version of every dependency, and the run logs of every chain are archived in the project repository.}
 \centering
 \begin{tabular}{l l}
 \hline
 Parameter & Value \\
 \hline
+\multicolumn{2}{l}{\textit{Data inputs}} \\
+Zircon (U-Th)/He dates & 55 single-grain analyses (Archean basement) \\
+Apatite (U-Th)/He dates & 13 single-grain analyses (Archean basement and Mellen Complex) \\
+Input dates & Raw (uncorrected) dates with analytical 1$\sigma$ uncertainties; \\
+ & the $\alpha$-ejection correction is applied within the forward model \\
+Assigned crystallization age & 2700 Ma (all grains) \\
 \multicolumn{2}{l}{\textit{Time-temperature discretization}} \\
-Model start time & 2704 Ma (oldest crystallization age) \\
-Model timestep & 8 Ma (linear; 338 steps) \\
+Model start time & 2704 Ma (2700 Ma rounded up to a whole timestep) \\
+Model timestep & 8 Ma (linear; 338 steps, bin centers 2700 to 4 Ma) \\
 Initial temperature & 400 \textdegree C (may vary to 300 \textdegree C) \\
 Present-day temperature & 0 \textdegree C (may vary to 20 \textdegree C) \\
 Maximum $\Delta$T per timestep & 20 \textdegree C \\
@@ -23,19 +33,32 @@ Allowed number of t-T nodes & 15 to 50 \\
 Detail interval & $\geq$8 nodes required between 0 and 1000 Ma \\
 Time boundary condition & Reflecting \\
 Temperature boundary condition & Reflecting \\
+\multicolumn{2}{l}{\textit{Geologic constraints (uniform boxes)}} \\
+Midcontinent Rift burial & 250 to 400 \textdegree C at 1050 to 1100 Ma \\
+Jacobsville deposition & 20 to 50 \textdegree C at 980 to 1000 Ma \\
+Cambrian Sauk transgression & 20 to 50 \textdegree C at 485 to 505 Ma \\
+Configurations run & \texttt{unconstrained} (no boxes); \\
+ & \texttt{no\_jacobsville} (Midcontinent Rift + Cambrian boxes); \\
+ & \texttt{all\_constraints} (all three boxes) \\
 \multicolumn{2}{l}{\textit{Markov chain}} \\
-Total steps & 1,000,000 \\
-Burn-in steps & 500,000 \\
-Simulated annealing & $T_0$ = 5, applied during burn-in \\
+Post-burn-in steps (posterior) & 1,000,000 \\
+Burn-in steps (discarded) & 500,000 \\
+Total steps & 1,500,000 \\
+Simulated annealing & $T_0$ = 5 (unitless), $\lambda$ = 7/burn-in; burn-in only \\
 Dynamic proposal tuning & Enabled \\
+Random seeds & 20260710, 12345, and 777 for every configuration \\
+ & (Figure 6 shows seed 20260710; Figure S5 shows all three) \\
 \multicolumn{2}{l}{\textit{Kinetic models (resampled during inversion)}} \\
 Apatite He diffusivity & RDAAM \cite{Flowers2009b} \\
 Zircon He diffusivity & ZRDAAM \cite{Guenthner2013a} \\
 \multicolumn{2}{l}{\textit{Date uncertainty}} \\
-Initial model uncertainty & 25 Ma \\
-Empirical uncertainty (apatite) & $\sigma_{eU}$ = 10, $\sigma_{offset}$ = 10 \\
-Empirical uncertainty (zircon) & $\sigma_{eU}$ = 100, $\sigma_{offset}$ = 10 \\
-Resampling during inversion & Disabled (fixed after initial estimation) \\
+Minimum model uncertainty & 25 Ma \\
+Empirical uncertainty kernel (apatite) & $\sigma_{eU}$ = 10 ppm, $\sigma_{offset}$ = 10 \textdegree C \\
+Empirical uncertainty kernel (zircon) & $\sigma_{eU}$ = 100 ppm, $\sigma_{offset}$ = 10 \textdegree C \\
+External fraction of empirical scatter & $1/\sqrt{2}$ \\
+Resulting model uncertainty (zircon) & 47 to 269 Ma (1$\sigma$; 75 to 135 Ma for eU $<$ 500 ppm) \\
+Resulting model uncertainty (apatite) & 25 to 81 Ma (1$\sigma$) \\
+Uncertainty resampling during inversion & Disabled (fixed after initial estimation) \\
 \hline
 \end{tabular}
 \label{tab:si_inversion_setup}

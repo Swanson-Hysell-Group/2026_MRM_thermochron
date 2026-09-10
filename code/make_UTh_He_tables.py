@@ -19,9 +19,12 @@ code/MRM_forward_models.ipynb:
   (analysis names ``TAI_LRA_67_z*``) is LRa-67.0.
 * Samples are assigned to the groups defined in the notebooks: Archean basement,
   Midcontinent Rift, and Freda Formation detrital zircon.
-* Grains that the notebooks filter out as spurious (TA_MRM20_z3 and
-  TAI_MRM34_z2) are retained in the table but flagged as excluded, with the
-  reason given, so that the reported dataset is complete.
+* Grains that the notebooks filter out as spurious (TA_MRM20_z3, and
+  TAI_MRM34_z21, _z22 and _z23) are dropped from the table entirely and are
+  not remarked on in the caption: they are withheld because of problems with
+  the analyses themselves rather than as a filtering decision that a reader
+  would need to reproduce. They remain in the archived data csv files. The
+  definitive list is the EXCLUDED dict below.
 * Analyses of samples belonging to other projects that share the same
   laboratory report files (APR, DKR1, DTR, MG, MG18, MA5 zircon; MG_G1 apatite)
   are dropped. Note that TAI_MA5_z1 and TAI_MA5_z2 are named in the notebook
@@ -40,12 +43,14 @@ Notes on individual analyses are carried as superscript footnote symbols in the
 last column, with the symbols defined in a legend beneath each table, so that no
 row has to wrap onto a second line.
 
-Several zircon grains have two rows in the csv file: the He measurement, mass,
-radius and F_T are identical but the U-Th determination differs between
-laboratory report files, so the two rows give different dates. Both rows are
-carried through the notebooks (both are in the inversion input file), so both
-are reported here, distinguished by the report file they come from and flagged
-with a dagger.
+Historically several zircon grains had two rows in the csv file: the He
+measurement, mass, radius and F_T were identical but the U-Th determination
+differed between laboratory report files, so the two rows gave different dates.
+That arose from analyses whose names differed only in a TA_ versus TAI_ prefix
+being matched to the wrong U-Th determination; it was resolved in August 2026
+and no analysis name now repeats. The handling is retained here (rows labeled
+(a), (b) and described in the caption) so that the script still behaves
+correctly should a genuine repeat determination be added.
 
 Run from anywhere:
 
@@ -94,6 +99,9 @@ APATITE_GROUPS = [
 ]
 
 # grains filtered out in the notebooks, with the stated reason
+# Analyses withheld from the table. Dropped rather than flagged, and not
+# mentioned in the caption; the reasons are recorded here rather than in the
+# supporting information. See the module docstring.
 EXCLUDED = {
     "TA_MRM20_z3": "excluded: anomalous U--Th determination",
     "TAI_MRM34_z21": "excluded: date exceeds crystallization age",
@@ -352,6 +360,16 @@ def prepare(csv_path, groups, inversion_names):
     letters = df.groupby("Unnamed: 0").cumcount().map(
         lambda i: chr(ord("a") + i))
     df["repeat_label"] = np.where(df["repeat_UTh"], letters, "")
+
+    # Drop the excluded analyses. This happens last, after undupe_grain_names
+    # and the ordering columns, so that removing a row cannot rename or
+    # renumber any surviving grain. The reasons are carried on the frame so
+    # that write_table can account for them in the caption.
+    is_excluded = df["Unnamed: 0"].isin(EXCLUDED)
+    dropped = [(name, EXCLUDED[name].removeprefix("excluded: "))
+               for name in df.loc[is_excluded, "Unnamed: 0"]]
+    df = df[~is_excluded].copy()
+    df.attrs["excluded"] = dropped
     return df
 
 
@@ -545,18 +563,19 @@ def write_table(df, mineral, path, table_number):
     else:
         caption_parts.append(
             r"Sm was not determined for the zircon aliquots.")
+        # Only describe repeat U-Th determinations if any remain. The
+        # TA_/TAI_ prefix collision that produced them was resolved in
+        # August 2026, so this sentence is now normally omitted.
         repeats = df[df["repeat_UTh"]]["Unnamed: 0"].nunique()
-        caption_parts.append(
-            f"{repeats} grains have two U--Th determinations reported for the "
-            r"same He aliquot: the He measurement, mass, radius, and $F_T$ of "
-            r"the two rows are identical and only the U--Th determination, "
-            r"and hence the date, differs. Both determinations are listed, "
-            r"labeled (a) and (b) in the order in which they appear in the "
-            r"archived data file, and both are carried through the analyses "
-            r"in the project repository.")
-        caption_parts.append(
-            r"Grains flagged as excluded are the analyses filtered out as "
-            r"spurious in the project repository.")
+        if repeats:
+            caption_parts.append(
+                f"{repeats} grains have two U--Th determinations reported for "
+                r"the same He aliquot: the He measurement, mass, radius, and "
+                r"$F_T$ of the two rows are identical and only the U--Th "
+                r"determination, and hence the date, differs. Both "
+                r"determinations are listed, labeled (a) and (b) in the order "
+                r"in which they appear in the archived data file, and both "
+                r"are carried through the analyses in the project repository.")
     caption_parts.append(
         r"Superscript symbols in the ``Notes'' column are defined beneath the "
         r"table.")
@@ -640,11 +659,14 @@ def main():
         repeats = df[df["repeat_UTh"]]["Unnamed: 0"].nunique()
         if repeats:
             print(f"  grains with repeat U-Th determinations: {repeats}")
+        excluded = df.attrs.get("excluded", [])
+        if excluded:
+            print(f"  analyses excluded and not listed: {len(excluded)} "
+                  f"({', '.join(n for n, _ in excluded)})")
         flagged = df["notes"].map(
-            lambda notes: any(n.startswith("excluded") or n == NOT_MODELED_NOTE
-                              for n in notes))
+            lambda notes: any(n == NOT_MODELED_NOTE for n in notes))
         if flagged.sum():
-            print(f"  analyses flagged as excluded or not modeled: "
+            print(f"  analyses listed but not in the inversion dataset: "
                   f"{flagged.sum()}")
 
 

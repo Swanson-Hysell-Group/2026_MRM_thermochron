@@ -1,0 +1,44 @@
+[ Info: Preparing model with 338 linear timesteps with bin centers between 2700.0 and 4.0 Ma
+┌ Info: Run configuration: unconstrained
+│ Random seed: 20260710
+│ Thermochron.jl version: 0.16.13
+└ Output file prefix: swansonhysell_runs_2026-08a/MRM_unconstrained_seed20260710
+[ Info: Inverting for He ages of 55 zircons
+[ Info: Inverting for He ages of 13 apatites
+
+
+┌ Info: tT.tpointdist & tT.Tpointdist collected, size: (52, 1000000)
+│ Mean log-likelihood: -446.4301510009983
+│ Mean acceptance rate: 0.30915938168123663
+│ Mean npoints: 21.647164705670587
+│ Mean jₜ: 572.876546837604
+└ Mean jT: 91.24544190168342
+┌ Warning: Assignment to `σtotal` in soft scope is ambiguous because a global variable by the same name exists: `σtotal` will be treated as a new local. Disambiguate by using `local σtotal` to suppress this warning or `global σtotal` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:264
+┌ Warning: Assignment to `h` in soft scope is ambiguous because a global variable by the same name exists: `h` will be treated as a new local. Disambiguate by using `local h` to suppress this warning or `global h` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:265
+┌ Warning: Assignment to `t` in soft scope is ambiguous because a global variable by the same name exists: `t` will be treated as a new local. Disambiguate by using `local t` to suppress this warning or `global t` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:363
+┌ Warning: Assignment to `σtotal` in soft scope is ambiguous because a global variable by the same name exists: `σtotal` will be treated as a new local. Disambiguate by using `local σtotal` to suppress this warning or `global σtotal` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:366
+┌ Warning: Assignment to `h` in soft scope is ambiguous because a global variable by the same name exists: `h` will be treated as a new local. Disambiguate by using `local h` to suppress this warning or `global h` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:367
+┌ Warning: Assignment to `t` in soft scope is ambiguous because a global variable by the same name exists: `t` will be treated as a new local. Disambiguate by using `local t` to suppress this warning or `global t` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:397
+┌ Warning: Assignment to `h` in soft scope is ambiguous because a global variable by the same name exists: `h` will be treated as a new local. Disambiguate by using `local h` to suppress this warning or `global h` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:403
+┌ Warning: Assignment to `t` in soft scope is ambiguous because a global variable by the same name exists: `t` will be treated as a new local. Disambiguate by using `local t` to suppress this warning or `global t` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:452
+┌ Warning: Assignment to `h` in soft scope is ambiguous because a global variable by the same name exists: `h` will be treated as a new local. Disambiguate by using `local h` to suppress this warning or `global h` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:463
+┌ Warning: Assignment to `h` in soft scope is ambiguous because a global variable by the same name exists: `h` will be treated as a new local. Disambiguate by using `local h` to suppress this warning or `global h` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:513
+┌ Warning: Assignment to `t` in soft scope is ambiguous because a global variable by the same name exists: `t` will be treated as a new local. Disambiguate by using `local t` to suppress this warning or `global t` to assign to the existing global variable.
+└ @ ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:523
+┌ Warning: MDD kinetics plotting skipped
+│   exception =
+│    UndefVarError: `MDDiffusivity` not defined in `Main`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/0000_Github/2024_MRM_thermochron/inversion_files/tTinversion_mrm.jl:546
+87984.298110 seconds (672.87 M allocations: 102.991 GiB, 0.01% gc time, 0.01% compilation time)
+ 13.275722 seconds (428.88 k allocations: 37.003 MiB, 0.19% gc time, 1.26% compilation time)

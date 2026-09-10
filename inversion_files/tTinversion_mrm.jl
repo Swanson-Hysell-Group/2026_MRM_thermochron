@@ -45,9 +45,15 @@
     # name = "OL13"
     # ds = importdataset("ol13.csv", ',', importas=:Tuple)
 
-    # MRM combined dataset (includes Archean zircons and all apatite samples)
+    # MRM combined dataset (includes Archean zircons and all apatite samples).
+    # The input file may be overridden with a fourth command line argument in
+    # order to run sensitivity tests on a reduced grain set, e.g.
+    #   julia tTinversion_mrm.jl no_jacobsville 20260710 outdir mrm_no_MRM4_z3_z5.csv
+    # Non-default input files are noted in the output file names.
     name = "MRM"
-    ds = importdataset("mrm.csv", ',', importas=:Tuple)
+    datafile = length(ARGS) >= 4 ? ARGS[4] : "mrm.csv"
+    isfile(datafile) || error("Input data file not found: $datafile")
+    ds = importdataset(datafile, ',', importas=:Tuple)
 
 ## --- Prepare problem
 
@@ -164,10 +170,12 @@
     # a third command line argument to write into a different batch folder.
     outdir = length(ARGS) >= 3 ? ARGS[3] : "swansonhysell_runs_2026-07b"
     mkpath(outdir)
+    datafile != "mrm.csv" && (name *= "_" * replace(basename(datafile), r"^mrm_|\.csv$" => ""))
     name = joinpath(outdir, name)
 
     @info """Run configuration: $config
     Random seed: $seed
+    Input data file: $datafile ($(length(ds.mineral)) analyses)
     Thermochron.jl version: $(pkgversion(Thermochron))
     Output file prefix: $name"""
 
