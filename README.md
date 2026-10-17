@@ -2,7 +2,7 @@
 
 Data analysis and modeling code for study on the thermochronology of the Montreal River monocline in northern Wisconsin associated with the manuscript:
 
-Alemu, T. B., Guenthner, W. R., & Swanson-Hysell, N. L. (2025). Mesoproterozoic, Neoproterozoic, and Mesozoic erosion of the Montreal River monocline in the Laurentia midcontinent. *in prep for Geochemistry, Geophysics, Geosystems*.
+Alemu, T. B., Guenthner, W. R., & Swanson-Hysell, N. L. (2025). Mesoproterozoic, Neoproterozoic, and Mesozoic erosion of the Montreal River monocline in the Laurentia midcontinent. *submitted to Geochemistry, Geophysics, Geosystems*.
 
 ## Code
 
